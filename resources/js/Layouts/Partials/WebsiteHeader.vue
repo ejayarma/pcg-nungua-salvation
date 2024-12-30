@@ -3,27 +3,65 @@ import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Menu, X } from 'lucide-vue-next';
 
+
+const showMobileNav = ref(false);
+
 </script>
 
 <template>
     <!-- <div class="fixed"> -->
-    <div class="container sticky top-0 flex justify-between w-full p-4 mx-auto text-white">
+    <div class="container relative top-0 flex justify-between w-full p-4 mx-auto text-white">
         <a href="#" class="inline-flex gap-2">
             <img src="@/images/presby-logo.png" class="h-10" alt="Presby Logo">
             <p class="text-sm leading-tight">
-                Salvation Presbyterian Church <br>
+                Salvation Presby Church <br>
                 <b>Nungua</b>
             </p>
         </a>
-        <Menu class="sm:hidden" />
+        <button @click="console.log(showMobileNav = true)">
+            <Menu class="sm:hidden" />
+        </button>
         <!-- <X /> -->
-        <div class="items-center justify-between hidden gap-4 sm:inline-flex">
-            <a href="#">About Us</a>
-            <a href="#">Services</a>
-            <a href="#">Events</a>
-            <a href="#">Contact</a>
-            <a href="#">Give</a>
-        </div>
+
+        <!-- MOBILE NAV START -->
+        <transition enter-active-class="animate__animated animate__fadeInRight"
+            leave-active-class="animate__animated animate__fadeOutRight">
+            <nav v-if="showMobileNav"
+                class="absolute top-0 right-0 z-10 w-full min-h-screen gap-4 text-black bg-slate-50">
+                <div class="flex justify-between p-4">
+                    <a href="#" class="inline-flex gap-2">
+                        <img src="@/images/presby-logo.png" class="h-10" alt="Presby Logo">
+                        <p class="text-sm leading-tight">
+                            Salvation Presby Church <br>
+                            <b>Nungua</b>
+                        </p>
+                    </a>
+                    <button @click="console.log(showMobileNav = false)">
+                        <X />
+                    </button>
+                </div>
+                <ul class="flex flex-col items-center text-center justify-stretch *:w-full">
+                    <li><a class="block py-4" href="#">About Us</a></li>
+                    <li><a class="block py-4" href="#">Services</a></li>
+                    <li><a class="block py-4" href="#">Events</a></li>
+                    <li><a class="block py-4" href="#">Contact</a></li>
+                    <li><a class="block py-4" href="#">Give</a></li>
+                </ul>
+            </nav>
+        </transition>
+        <!-- MOBILE NAV END -->
+
+        <!-- DESKTOP NAV START -->
+        <nav class="hidden sm:inline-block">
+            <ul class="items-center justify-between gap-4 sm:inline-flex *:w-full">
+                <li><a class="block" href="#">About Us</a></li>
+                <li><a class="block" href="#">Services</a></li>
+                <li><a class="block" href="#">Events</a></li>
+                <li><a class="block" href="#">Contact</a></li>
+                <li><a class="block" href="#">Give</a></li>
+            </ul>
+        </nav>
+        <!-- DESKTOP NAV END -->
     </div>
     <!-- </div> -->
 

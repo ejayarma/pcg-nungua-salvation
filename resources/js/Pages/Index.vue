@@ -17,8 +17,9 @@ defineProps<{
     <Head title="Welcome" />
     <WebsiteLayout>
         <div class="container grid px-4 py-24 mx-auto text-center text-white/90 place-items-center">
+            <!-- <div class="container grid min-h-screen px-4 py-24 mx-auto text-center text-white/90 place-items-center"> -->
             <div>
-                <h1 class="text-6xl tracking-widest">SALVATION</h1>
+                <h1 class="text-2xl tracking-widest sm:text-6xl">SALVATION</h1>
                 <!-- <h2 class="mt-2 tracking-widest text-red-500">
                     ●
                 </h2> -->
@@ -99,8 +100,8 @@ defineProps<{
             <section class="py-16 mt-10 bg-white">
                 <div class="container px-4 mx-auto">
                     <h2 class="text-3xl font-bold text-center text-blue-800">Services</h2>
-                    <div class="flex items-center justify-around gap-4 mt-6">
-                        <div class="inline-flex items-stretch justify-center gap-4 p-4 bg-white rounded-md shadow-xl">
+                    <div class="flex flex-col items-center justify-around gap-4 mt-6 lg:flex-row">
+                        <div class="inline-flex items-stretch justify-center gap-4 p-4 bg-white rounded-md shadow-xl ">
                             <div class="text-center rounded-md text-nowrap overflow-clip">
                                 <div class="px-4 py-2 text-red-500 bg-red-50 h-1/2">Feb 12</div>
                                 <div class="px-4 py-2 text-white bg-red-500 h-1/2">7:00 am</div>

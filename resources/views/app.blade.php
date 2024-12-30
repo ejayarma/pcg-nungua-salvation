@@ -17,7 +17,7 @@
     @inertiaHead
 </head>
 
-<body class="font-sans antialiased">
+<body class="overflow-x-hidden font-sans antialiased">
     @inertia
 
 
@@ -30,9 +30,9 @@
         });
       </script> --}}
 
-        <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkLzNKaFxa8rkY1s9o5gHX8oIFARvmdW4&loading=async&libraries=maps&v=beta" defer>
-</script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkLzNKaFxa8rkY1s9o5gHX8oIFARvmdW4&loading=async&libraries=maps&v=beta"
+        defer></script>
 </body>
 
 </html>
