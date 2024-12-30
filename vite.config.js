@@ -17,4 +17,10 @@ export default defineConfig({
             },
         }),
     ],
+
+    resolve: {
+        alias: {
+            '@/images': '/resources/images',
+        },
+    },
 });

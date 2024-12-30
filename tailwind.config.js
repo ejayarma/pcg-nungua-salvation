@@ -15,8 +15,15 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            backgroundImage: {
+                'hero-pattern': "url('/resources/images/inside-church.jpeg'), linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.9))",
+            },
+            backgroundSize: {
+                '50%': '100% 50%',
+                '16': '4rem',
+            }
         },
     },
 
-    plugins: [forms],
+    // plugins: [forms],
 };

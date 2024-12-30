@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.form-input {
+    @apply px-3 py-2 bg-red-50 w-full rounded-2xl border-red-200 focus:border-red-600 focus:outline-red-500;
+}
+
+.form-label {
+    @apply text-lg tracking-wide;
+}
