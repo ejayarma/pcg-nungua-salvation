@@ -30,9 +30,9 @@
         });
       </script> --}}
 
-    <script
+    {{-- <script
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkLzNKaFxa8rkY1s9o5gHX8oIFARvmdW4&loading=async&libraries=maps&v=beta"
-        defer></script>
+        defer></script> --}}
 </body>
 
 </html>

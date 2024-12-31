@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import WebsiteLayout from '@/Layouts/WebsiteLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { Heart, HandHelping, CirclePlay, Sparkles, MapPin, Search, MessagesSquare, SquarePlay } from 'lucide-vue-next';
+import { Heart, HandHelping, CirclePlay, Sparkles, MapPin, Search, MessagesSquare, SquarePlay, Lightbulb, Star, Cross, Handshake } from 'lucide-vue-next';
 
 defineProps<{
     canLogin?: boolean;
@@ -19,8 +19,8 @@ defineProps<{
         <div class="container grid px-4 py-24 mx-auto text-center text-white/90 place-items-center">
             <!-- <div class="container grid min-h-screen px-4 py-24 mx-auto text-center text-white/90 place-items-center"> -->
             <div>
-                <h1 class="text-2xl tracking-widest sm:text-6xl">S▲LV▲TI<span class="">●</span>N</h1>
-                <!-- <h2 class="mt-2 tracking-widest text-blue-500">
+                <h1 class="text-2xl tracking-widest sm:text-6xl">S▲LV▲TI●N</h1>
+                <!-- <h2 class="mt-2 tracking-widest text-blue-800">
                     ●
                 </h2> -->
                 <p class="my-4 text-lg tracking-wide text-red-400">Through the blood of Jesus
@@ -73,27 +73,26 @@ defineProps<{
 
                 <div class="grid grid-cols-1 gap-10 mt-6 sm:grid-cols-3">
                     <div class="inline-flex flex-col items-center gap-4 p-10 bg-white rounded-lg shadow-md">
-                        <Search :size="48" />
+                        <Handshake :size="48" />
                         <h3 class="text-xl font-bold text-blue-800">About Us</h3>
-                        <p class="text-sm text-gray-400">Lorem ipsum dolor sit amet laboriosam repudiandae dolorum quas
-                            alias officia, facere
-                            veritatis.
+                        <p class="text-sm text-gray-400">Our church is open and friendly with many social activities. To
+                            keep our church running smoothly, we have committees.
                         </p>
                     </div>
                     <div class="inline-flex flex-col items-center gap-4 p-10 bg-white rounded-lg shadow-md">
-                        <SquarePlay :size="48" />
-                        <h3 class="text-xl font-bold text-blue-800">Media</h3>
-                        <p class="text-sm text-gray-400">Lorem ipsum dolor sit amet laboriosam repudiandae dolorum quas
-                            alias officia, facere
-                            veritatis.
+                        <Cross :size="48" />
+                        <h3 class="text-xl font-bold text-blue-800">Christ-Centered</h3>
+                        <p class="text-sm text-gray-400">We exist to represent Christ to our community and world so that
+                            they might see Jesus and realize all that God has planned for them!
+
+
                         </p>
                     </div>
                     <div class="inline-flex flex-col items-center gap-4 p-10 bg-white rounded-lg shadow-md">
-                        <MessagesSquare :size="48" />
+                        <Lightbulb :size="48" />
                         <h3 class="text-xl font-bold text-blue-800">Testimonials</h3>
-                        <p class="text-sm text-gray-400">Lorem ipsum dolor sit amet laboriosam repudiandae dolorum quas
-                            alias officia, facere
-                            veritatis.
+                        <p class="text-sm text-gray-400">We invite you to see for yourself how exciting church can be
+                            when the focus is simple and people are free to go after God with passion..
                         </p>
                     </div>
                 </div>
@@ -105,29 +104,29 @@ defineProps<{
                     <div class="flex flex-col items-center justify-around gap-4 mt-6 lg:flex-row">
                         <div class="inline-flex items-stretch justify-center gap-4 p-4 bg-white rounded-md shadow-xl ">
                             <div class="text-center rounded-md text-nowrap overflow-clip">
-                                <div class="px-4 py-2 text-blue-500 bg-blue-50 h-1/2">Feb 12</div>
-                                <div class="px-4 py-2 text-white bg-blue-500 h-1/2">7:00 am</div>
+                                <div class="px-4 py-2 text-blue-800 bg-blue-50 h-1/2">Sunday</div>
+                                <div class="px-4 py-2 text-white bg-blue-800 h-1/2">9:00 am</div>
                             </div>
                             <p><b>First Fruits</b> <br>
-                                Monthly Prayer and Fasting Service
+                                Fasting Service, 1st Sunday of every month
                             </p>
                         </div>
-                        <div class="hidden bg-blue-500 rounded-full size-2 sm:inline-block"></div>
+                        <div class="hidden bg-blue-800 rounded-full size-2 sm:inline-block"></div>
                         <div class="inline-flex items-stretch justify-center gap-4 p-4 bg-white rounded-md shadow-xl">
                             <div class="text-center rounded-md text-nowrap overflow-clip">
-                                <div class="px-4 py-2 text-blue-500 bg-blue-50 h-1/2">Feb 12</div>
-                                <div class="px-4 py-2 text-white bg-blue-500 h-1/2">9:00 am</div>
+                                <div class="px-4 py-2 text-blue-800 bg-blue-50 h-1/2">Sunday</div>
+                                <div class="px-4 py-2 text-white bg-blue-800 h-1/2">9:00 am</div>
                             </div>
                             <p><b>Sunday Service</b><br>
                                 Inspiring, spirit-filled
                                 Sunday experience
                             </p>
                         </div>
-                        <div class="hidden bg-blue-500 rounded-full size-2 sm:inline-block"> </div>
+                        <div class="hidden bg-blue-800 rounded-full size-2 sm:inline-block"> </div>
                         <div class="inline-flex items-stretch justify-center gap-4 p-4 bg-white rounded-md shadow-xl">
                             <div class="text-center rounded-md text-nowrap overflow-clip">
-                                <div class="px-4 py-2 text-blue-500 bg-blue-50 h-1/2">Feb 12</div>
-                                <div class="px-4 py-2 text-white bg-blue-500 h-1/2">7:00 pm</div>
+                                <div class="px-4 py-2 text-blue-800 bg-blue-50 h-1/2">Friday</div>
+                                <div class="px-4 py-2 text-white bg-blue-800 h-1/2">7:00 pm</div>
                             </div>
                             <p><b>Salvation Hour</b> <br>
                                 Energizing and power-packed prayers.
@@ -143,8 +142,8 @@ defineProps<{
             <section class="py-16 mt-10 ">
                 <div class="container px-4 mx-auto">
                     <h2 class="text-3xl font-bold text-center text-blue-800">Contact Us</h2>
-                    <div class="flex flex-col mt-6 sm:flex-row">
-                        <div class="w-full p-4 bg-white sm:w-1/2 rounded-3xl">
+                    <div class="grid grid-cols-1 gap-0 mt-6 overflow-hidden bg-white sm:grid-cols-2 rounded-3xl">
+                        <div class="p-10">
                             <div class="">
                                 <label class="block form-label" for="name">Your name</label>
                                 <input class="form-input" name="name" type="text">
@@ -167,20 +166,44 @@ defineProps<{
                                 Send
                             </button>
                         </div>
-                        <div id="map" class="w-full h-full sm:w-1/2">
-                            <gmp-map class="h-[500px] pl-3 rounded-2xl" center="37.4220656,-122.0840897" zoom="10"
-                                map-id="PCG-SALVATION-NUNGUA">
-                            </gmp-map>
+                        <div
+                            class="bg-fixed bg-gray-600 bg-no-repeat bg-cover hidden sm:block min-h-[200px] sm:min-h-[400px] bg-blend-overlay bg-church-inside sm:rounded-none rounded-b-3xl ">
+                            <div class="relative size-full">
+                                <!-- <div
+                                    class="absolute bottom-0 right-0 p-4 text-white rounded sm:right-5 sm:bottom-5 sm:size-fit size-full bg-white/25 text-end backdrop-blur-sm">
+                                    <h2 class="text-2xl font-bold text-red-400">Location</h2>
+                                    <p>Nungua</p>
+                                    <p>
+                                        <b>Cocoa beach road</b>
+                                    </p>
+
+                                </div> -->
+                            </div>
+                        </div>
+
+                        <div id="map" class="">
+                            <iframe src="https://snazzymaps.com/embed/671861" width="100%" height="400px"
+                                style="border:none;"></iframe>
+                        </div>
+                        <div class="p-10">
+
+                            <div class="flex flex-col justify-center h-full gap-4">
+                                <h3 class="text-4xl font-bold">Join Us On Sunday</h3>
+                                <p class="font-semibold">Nungua, Off the Cocobeach Road</p>
+
+                                <p>When you come to Salvation Presby Church, you can expect to be welcomed into a
+                                    friendly
+                                    environment
+                                    by people who are genuinely excited to see you. Our gatherings last about 1 hour and
+                                    15
+                                    minutes, and are filled with gospel-centered music and teachings from the Bible.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
             </section>
             <!-- CONTACT SECTION END -->
-
-
-
-
 
         </div>
     </WebsiteLayout>

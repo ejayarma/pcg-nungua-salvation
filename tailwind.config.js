@@ -16,7 +16,11 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
             backgroundImage: {
-                'hero-pattern': "url('/resources/images/inside-church.jpeg'), linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.9))",
+                'hero-pattern': "url('/resources/images/church-inside.jpeg'), linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.9))",
+                'church-hall': "url('/resources/images/church-hall.jpeg')",
+                'church-aud': "url('/resources/images/church-aud.jpeg')",
+                'church-lounge': "url('/resources/images/church-lounge.jpeg')",
+                'church-inside': "url('/resources/images/church-inside.jpeg')",
             },
             backgroundSize: {
                 '50%': '100% 50%',
