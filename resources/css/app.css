@@ -3,9 +3,14 @@
 @tailwind utilities;
 
 .form-input {
-    @apply px-3 py-2 bg-red-50 w-full rounded-2xl border-red-200 focus:border-red-600 focus:outline-red-500;
+    @apply px-3 py-2 bg-blue-50 w-full rounded-2xl border-blue-200 focus:border-blue-600 focus:outline-blue-500;
 }
 
 .form-label {
     @apply text-lg tracking-wide;
+}
+
+.no-scroll {
+    overflow: hidden;
+    height: 100vh;
 }

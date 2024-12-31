@@ -4,7 +4,17 @@ import { ref } from 'vue';
 import { Menu, X } from 'lucide-vue-next';
 
 
-const showMobileNav = ref(false);
+const showMobileNav = ref<Boolean>(false);
+
+function toggleNav() {
+    showMobileNav.value = !showMobileNav.value;
+
+    if (showMobileNav.value) {
+        document.body.classList.add('no-scroll'); // Disable scroll
+    } else {
+        document.body.classList.remove('no-scroll'); // Enable scroll
+    }
+}
 
 </script>
 
@@ -18,7 +28,7 @@ const showMobileNav = ref(false);
                 <b>Nungua</b>
             </p>
         </a>
-        <button @click="console.log(showMobileNav = true)">
+        <button @click="toggleNav">
             <Menu class="sm:hidden" />
         </button>
         <!-- <X /> -->
@@ -27,7 +37,7 @@ const showMobileNav = ref(false);
         <transition enter-active-class="animate__animated animate__fadeInRight"
             leave-active-class="animate__animated animate__fadeOutRight">
             <nav v-if="showMobileNav"
-                class="absolute top-0 right-0 z-10 w-full min-h-screen gap-4 text-black bg-slate-50">
+                class="fixed top-0 right-0 z-10 w-full h-screen gap-4 overflow-hidden text-black bg-slate-50">
                 <div class="flex justify-between p-4">
                     <a href="#" class="inline-flex gap-2">
                         <img src="@/images/presby-logo.png" class="h-10" alt="Presby Logo">
@@ -36,7 +46,7 @@ const showMobileNav = ref(false);
                             <b>Nungua</b>
                         </p>
                     </a>
-                    <button @click="console.log(showMobileNav = false)">
+                    <button @click="toggleNav">
                         <X />
                     </button>
                 </div>
@@ -53,7 +63,7 @@ const showMobileNav = ref(false);
 
         <!-- DESKTOP NAV START -->
         <nav class="hidden sm:inline-block">
-            <ul class="items-center justify-between gap-4 sm:inline-flex *:w-full">
+            <ul class="items-center justify-between gap-4 sm:inline-flex *:w-full text-nowrap">
                 <li><a class="block" href="#">About Us</a></li>
                 <li><a class="block" href="#">Services</a></li>
                 <li><a class="block" href="#">Events</a></li>
