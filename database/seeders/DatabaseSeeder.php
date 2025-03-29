@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true,
         ]);
 
-        // $this->call(WorldSeeder::class);
+        $this->call(StateSeeder::class);
 
         GenerationalGroup::factory()->count(6)->create();
         GenerationalGroup::query()->find(1)->update(['name' => 'Children Service']);

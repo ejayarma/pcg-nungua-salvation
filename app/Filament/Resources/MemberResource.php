@@ -87,38 +87,11 @@ class MemberResource extends Resource
                     ->columns(2)
                     ->relationship('address')
                     ->schema([
-                        // Forms\Components\Select::make('country_id')
-                        //     ->label('Country')
-                        //     ->options(Country::pluck('name', 'id'))
-                        //     ->options(function (Get $get, Set $set) {
-                        //         $stateId = $get('state_id');
 
-                        //         if ($stateId) {
-                        //             $set(
-                        //                 'country_id',
-                        //                 State::query()
-                        //                     ->with('country')
-                        //                     ->find($stateId, ['country_id'])->country_id
-                        //             );
-                        //         }
-
-                        //         return Country::pluck('name', 'id');
-                        //     })
-                        //     ->searchable()
-                        //     ->required()
-                        //     ->live()
-                        //     ->preload(),
                         Forms\Components\Select::make('state_id')
-                            ->label('State/Province/Region')
+                            ->label('Region')
                             ->options(function (Get $get) {
-                                $countryId = $get('country_id');
-
-                                return State::query()
-                                    // ->when($countryId, function ($query) use ($countryId) {
-                                    //     $query->where('country_id', $countryId);
-                                    // })
-                                    ->where('country_id', $countryId ?? 84)
-                                    ->pluck('name', 'id');
+                                return State::pluck('name', 'id');
                             })
                             ->searchable()
                             ->required()

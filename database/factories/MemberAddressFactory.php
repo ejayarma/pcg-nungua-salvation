@@ -30,7 +30,7 @@ class MemberAddressFactory extends Factory
             'street' => $this->faker->streetAddress,
             'city' => $this->faker->city,
             'digital_address' => $this->faker->uuid,
-            'state_id' => $this->faker->randomElement(State::where('country_id', 84)->pluck('id')->toArray()),
+            'state_id' => $this->faker->randomElement(State::pluck('id')->toArray()),
         ];
     }
 }
