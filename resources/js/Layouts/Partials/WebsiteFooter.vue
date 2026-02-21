@@ -100,9 +100,8 @@ import { Mail, Phone, Twitter, Facebook, Linkedin, Instagram, XIcon } from 'luci
         </div>
 
         <p class="relative py-1 text-xs text-center text-gray-700 bg-white ">
-            &copy {{ new Date().getFullYear() }} &nbsp; ● &nbsp;
-            Crafted with ❤️ by <a href="https://ejayarma.github.io" target="_blank"
-                rel="noopener noreferrer">@ejayarma</a>
+            &copy; {{ new Date().getFullYear() }} &nbsp; ● &nbsp;
+            Crafted with ❤️ by <a href="https://yarmy.tech" target="_blank" rel="noopener noreferrer">Yarmy Technologies</a>
         </p>
     </div>
 </template>
