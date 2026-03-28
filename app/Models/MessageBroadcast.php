@@ -12,11 +12,16 @@ class MessageBroadcast extends Model
         'title',
         'message',
         'medium',
+        'recipients',
+        'recipient_count',
+        'recipient_group',
         'created_by',
     ];
 
     protected $casts = [
         'recipients' => 'array',
+        'status' => \App\Enums\MessageBroadcastStatusEnum::class,
+        'recipient_group' => \App\Enums\MessageBroadcastRecipientEnum::class,
     ];
 
     public function creator()
