@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Menu, X } from 'lucide-vue-next';
 
 
-const showMobileNav = ref<Boolean>(false);
-const isScrolled = ref<Boolean>(false);
+const showMobileNav = ref<boolean>(false);
+const isScrolled = ref<boolean>(false);
 
 function toggleNav() {
     showMobileNav.value = !showMobileNav.value;
@@ -19,8 +19,7 @@ function toggleNav() {
 
 // Handle scroll event
 function handleScroll() {
-    // Toggle `isScrolled` based on scroll position
-    isScrolled.value = window.scrollY > 50; // Change 50 to your threshold
+    isScrolled.value = window.scrollY > 50;
 }
 
 // Attach event listener when component mounts
@@ -72,9 +71,9 @@ onUnmounted(() => {
                     <ul class="flex flex-col items-center text-center justify-stretch *:w-full">
                         <li><a class="block py-4" href="#">About Us</a></li>
                         <li><a class="block py-4" href="#">Services</a></li>
-                        <li><a class="block py-4" href="#">Events</a></li>
                         <li><a class="block py-4" href="#">Contact</a></li>
                         <li><a class="block py-4" href="#">Give</a></li>
+                        <li><a class="block py-4" href="/admin">Admin</a></li>
                     </ul>
                 </nav>
             </transition>
@@ -84,9 +83,9 @@ onUnmounted(() => {
                 <ul class="items-center justify-between gap-4 sm:inline-flex *:w-full *:font-medium text-nowrap">
                     <li><a class="block p-3" href="#">About Us</a></li>
                     <li><a class="block p-3" href="#">Services</a></li>
-                    <li><a class="block p-3" href="#">Events</a></li>
                     <li><a class="block p-3" href="#">Contact</a></li>
                     <li><a class="block p-3" href="#">Give</a></li>
+                    <li><a class="block p-3" href="/admin">Admin</a></li>
                 </ul>
             </nav>
         </div>

@@ -194,8 +194,7 @@ defineProps<{
                                 <p>When you come to Salvation Presby Church, you can expect to be welcomed into a
                                     friendly
                                     environment
-                                    by people who are genuinely excited to see you. Our gatherings last about 1 hour and
-                                    15
+                                    by people who are genuinely excited to see you. Our gatherings last about 3 hours
                                     minutes, and are filled with gospel-centered music and teachings from the Bible.</p>
                             </div>
                         </div>

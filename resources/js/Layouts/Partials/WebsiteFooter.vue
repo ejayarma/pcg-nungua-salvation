@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Mail, Phone, Twitter, Facebook, Linkedin, Instagram, XIcon } from 'lucide-vue-next';
+
+function navigateToAdmin() {
+    router.visit('/admin');
+}
 
 </script>
 
@@ -16,7 +20,7 @@ import { Mail, Phone, Twitter, Facebook, Linkedin, Instagram, XIcon } from 'luci
         <div
             class="container relative grid items-center grid-cols-1 gap-10 p-6 px-4 py-10 mx-auto sm:gap-0 sm:grid-cols-2 lg:grid-cols-4">
             <div class="flex gap-4">
-                <img src="@/images/presby-logo.png" class="h-16" alt="Presby Logo">
+                <img @dblclick="navigateToAdmin" src="@/images/presby-logo.png" class="h-16" alt="Presby Logo">
                 <p class="text-sm leading-tight">
                     Presbyterian Church of Ghana <br>
                     Ga Presbytery <br>

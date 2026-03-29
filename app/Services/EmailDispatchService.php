@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Services;
+
+use App\Mail\MessageBroadcastMail;
+use App\Models\MessageBroadcast;
+use Illuminate\Support\Facades\Mail;
+
+class EmailDispatchService
+{
+    private const BATCH_SIZE = 5;
+
+    private const DELAY_BETWEEN_BATCHES_SECONDS = 60;
+
+    /**
+     * Create a new class instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    public function sendEmail(array $recipients, MessageBroadcast $message): void
+    {
+        collect($recipients)
+            ->chunk(self::BATCH_SIZE)
+            ->each(function ($chunk, int $batchIndex) use ($message) {
+                $delayInSeconds = $batchIndex * self::DELAY_BETWEEN_BATCHES_SECONDS;
+                $this->dispatchBatch($chunk->all(), $message, $delayInSeconds);
+            });
+    }
+
+    private function dispatchBatch(array $recipients, MessageBroadcast $message, int $delaySeconds): void
+    {
+        dispatch(function () use ($recipients, $message) {
+            $this->sendChunk($recipients, $message);
+        })->delay(now()->addSeconds($delaySeconds));
+    }
+
+    private function sendChunk(array $recipients, MessageBroadcast $message): void
+    {
+        if (count($recipients) === 1) {
+            Mail::to($recipients[0])->send(new MessageBroadcastMail($message));
+
+            return;
+        }
+
+        // $admins = User::query()->where('is_admin', true)
+        //     ->pluck('email')
+        //     ->filter()
+        //     ->values()
+        //     ->all();
+
+        Mail::to(config('mail.from.address'))
+            ->bcc($recipients)
+            ->send(new MessageBroadcastMail($message));
+    }
+}
