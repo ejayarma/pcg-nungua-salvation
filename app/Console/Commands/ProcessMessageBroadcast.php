@@ -12,7 +12,6 @@ use App\Services\SmsDispatchService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-
 class ProcessMessageBroadcast extends Command
 {
     /**
@@ -63,6 +62,9 @@ class ProcessMessageBroadcast extends Command
             } catch (\Exception $e) {
                 // Log any errors that occur during processing
                 Log::channel('broadcast-msg')->error("Failed to process message broadcast ID {$broadcast->id}: ".$e->getMessage());
+
+                $broadcast->update(['status' => MessageBroadcastStatusEnum::FAILED]);
+
             }
         }
 
@@ -112,11 +114,33 @@ class ProcessMessageBroadcast extends Command
             ->map(fn ($member) => $member->phone ?? $member->contactPerson->phone)
             ->values();
 
+        if ($broadcast->recipient_group === MessageBroadcastRecipientEnum::ALL) {
+            $csvPhoneNumbers = $this->loadSalvationNumbers();
+            Log::channel('broadcast-msg')->info('Loaded '.count($csvPhoneNumbers)." additional phone number(s) from salvation.csv for SMS broadcast ID {$broadcast->id}.", [$csvPhoneNumbers]);
+            $phoneNumbers = $phoneNumbers->merge($csvPhoneNumbers);
+        }
+
         Log::channel('broadcast-msg')->info('Extracted '.count($phoneNumbers)." phone number(s) for SMS broadcast ID {$broadcast->id}.", [$phoneNumbers]);
 
         // Logic to send SMS to $phoneNumbers using your preferred SMS gateway
         $smsDispatchService = app(SmsDispatchService::class);
         $smsDispatchService->sendSms($phoneNumbers->toArray(), $broadcast->message);
+    }
+
+    private function loadSalvationNumbers()
+    {
+        $csvPath = resource_path('data/salvation.csv');
+
+        if (! file_exists($csvPath)) {
+            Log::channel('broadcast-msg')->warning("Salvation CSV not found at {$csvPath}.");
+
+            return collect();
+        }
+
+        return collect(file($csvPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES))
+            ->map(fn ($line) => trim(preg_replace('/\D+/', '', $line)))
+            ->filter()
+            ->values();
     }
 
     /** Get members

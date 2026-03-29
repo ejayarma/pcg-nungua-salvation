@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\MessageBroadcastStatusEnum;
 use App\Filament\Resources\MessageBroadcastResource\Pages;
 use App\Models\GenerationalGroup;
 use App\Models\Member;
@@ -84,9 +85,9 @@ class MessageBroadcastResource extends Resource
                 TextColumn::make('created_at')->dateTime()->sortable(),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'SENT' => 'success',
-                        'FAILED' => 'danger',
+                    ->color(fn (MessageBroadcastStatusEnum $state): string => match ($state) {
+                        MessageBroadcastStatusEnum::SENT => 'success',
+                        MessageBroadcastStatusEnum::FAILED => 'danger',
                         default => 'warning',
                     }),
             ])

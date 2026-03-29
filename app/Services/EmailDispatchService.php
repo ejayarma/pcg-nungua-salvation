@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Mail;
 
 class EmailDispatchService
 {
-    private const BATCH_SIZE = 10;
+    private const BATCH_SIZE = 5;
 
     private const DELAY_BETWEEN_BATCHES_SECONDS = 60;
 
@@ -39,6 +39,20 @@ class EmailDispatchService
 
     private function sendChunk(array $recipients, MessageBroadcast $message): void
     {
-        Mail::to($recipients)->send(new MessageBroadcastMail($message));
+        if (count($recipients) === 1) {
+            Mail::to($recipients[0])->send(new MessageBroadcastMail($message));
+
+            return;
+        }
+
+        // $admins = User::query()->where('is_admin', true)
+        //     ->pluck('email')
+        //     ->filter()
+        //     ->values()
+        //     ->all();
+
+        Mail::to(config('mail.from.address'))
+            ->bcc($recipients)
+            ->send(new MessageBroadcastMail($message));
     }
 }
