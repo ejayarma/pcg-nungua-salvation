@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\MessageBroadcast;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -14,7 +13,13 @@ class MessageBroadcastMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    protected MessageBroadcast $messageBroadcast;
+    public MessageBroadcast $messageBroadcast;
+
+    public $retries = 3;
+
+    public $retryAfter = 60;
+
+    public $backoff = [60, 120, 300];
 
     /**
      * Create a new message instance.
@@ -40,7 +45,7 @@ class MessageBroadcastMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mail.message-broadcast-mail',
+            markdown: 'mail.message-broadcast-mail',
         );
     }
 

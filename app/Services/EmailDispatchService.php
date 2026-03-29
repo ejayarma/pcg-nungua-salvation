@@ -3,11 +3,12 @@
 namespace App\Services;
 
 use App\Mail\MessageBroadcastMail;
+use App\Models\MessageBroadcast;
 use Illuminate\Support\Facades\Mail;
 
 class EmailDispatchService
 {
-    private const BATCH_SIZE = 50;
+    private const BATCH_SIZE = 10;
 
     private const DELAY_BETWEEN_BATCHES_SECONDS = 60;
 
@@ -19,7 +20,7 @@ class EmailDispatchService
         //
     }
 
-    public function sendEmail(array $recipients, string $message): void
+    public function sendEmail(array $recipients, MessageBroadcast $message): void
     {
         collect($recipients)
             ->chunk(self::BATCH_SIZE)
@@ -29,14 +30,14 @@ class EmailDispatchService
             });
     }
 
-    private function dispatchBatch(array $recipients, string $message, int $delaySeconds): void
+    private function dispatchBatch(array $recipients, MessageBroadcast $message, int $delaySeconds): void
     {
         dispatch(function () use ($recipients, $message) {
             $this->sendChunk($recipients, $message);
         })->delay(now()->addSeconds($delaySeconds));
     }
 
-    private function sendChunk(array $recipients, $message): void
+    private function sendChunk(array $recipients, MessageBroadcast $message): void
     {
         Mail::to($recipients)->send(new MessageBroadcastMail($message));
     }

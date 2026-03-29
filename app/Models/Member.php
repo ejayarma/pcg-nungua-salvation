@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Member extends Model
 {
-    use SoftDeletes;
     use HasFactory;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -20,15 +20,19 @@ class Member extends Model
      */
     protected $fillable = [
         'name',
+        'phone',
         'email',
+        'date_of_birth',
+        'generational_group_id',
+        'gender',
+        'is_communicant',
+        'occupation',
     ];
-
 
     public function generationalGroup(): BelongsTo
     {
         return $this->belongsTo(GenerationalGroup::class);
     }
-
 
     public function address(): HasOne
     {

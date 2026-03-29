@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Exceptions\SmsDispatchException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SmsDispatchService
 {
@@ -30,12 +32,33 @@ class SmsDispatchService
 
     public function sendSms(array $recipients, string $message)
     {
-        collect($recipients)->chunk(50)->each(function ($chunk) use ($message) {
-            $this->sendChunk($chunk, $message);
+        // Check balance from SMS service
+        $balanceResponse = Http::get($this->creditUrl, [
+            'username' => $this->apiUsername,
+            'password' => $this->apiPassword,
+        ]);
+
+        if ($balanceResponse->failed()) {
+            throw new SmsDispatchException('Failed to check SMS balance');
+        }
+
+        $balance = $balanceResponse->json('balance');
+        $balance = round((float) $balance, 3);
+
+        $estimatedCost = count($recipients) * (strlen($message) / 160) * 0.03;
+        Log::channel('broadcast-msg')->info("Current SMS balance: {$balance}. Estimated cost for this broadcast: {$estimatedCost}.");
+
+        if ($balance < $estimatedCost) {
+            throw new SmsDispatchException('Insufficient SMS balance');
+        }
+
+        collect($recipients)->chunk(10)->each(function (array $chunk, $index) use ($message) {
+            $smsResponse = $this->sendChunk($chunk, $message);
+            Log::channel('broadcast-msg')->info('SMS sent to chunk: '.$index + 1 .'. Response: '.json_encode($smsResponse));
         });
     }
 
-    private function sendChunk($recipients, $message)
+    private function sendChunk(array $recipients, string $message)
     {
 
         $data = [
@@ -47,12 +70,12 @@ class SmsDispatchService
             'ol' => false,
         ];
 
-        $response = Http::post($this->apiUrl, $data);
+        $response = Http::post($this->apiUrl, $data)->dump();
 
         return $response->json();
     }
 
-    private function formatRecipients($recipients): string
+    private function formatRecipients(array $recipients): string
     {
         return collect($recipients)->map(function ($number) {
             $formatted = preg_replace('/\D/', '', $number);

@@ -40,7 +40,7 @@ return [
         'api_password' => env('DEYWURO_PASSWORD'),
         'sender_id' => env('DEYWURO_SENDER_ID'),
         'sms_url' => env('DEYWURO_API_URL', 'https://api.deywuro.com/sms/send'),
-        'credit_url' => env('DEYWURO_CREDIT_URL', 'https://api.deywuro.com/credit/balance'),
+        'credit_url' => env('DEYWURO_CREDIT_URL', 'https://api.deywuro.com/bulksms/credit_bal.php'),
     ],
 
 ];
