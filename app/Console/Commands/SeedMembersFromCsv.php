@@ -16,7 +16,7 @@ class SeedMembersFromCsv extends Command
      * @var string
      */
     protected $signature = 'members:seed-from-csv
-                            {--file=../../Downloads/salvation-database.csv : Path to the CSV file}
+                            {--file=resources/data/salvation-database.csv : Path to the CSV file}
                             {--generational-group= : ID of the generational group to assign members to (optional, will use CSV value if not provided)}
                             {--default-generational-group=1 : Default generational group ID if not found in CSV}
                             {--skip-duplicates : Skip members with duplicate phone numbers}';
