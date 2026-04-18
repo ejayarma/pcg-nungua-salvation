@@ -3,26 +3,18 @@
 namespace App\Filament\Resources;
 
 use App\Enums\GenderEnum;
+use App\Filament\Exports\MemberExporter;
 use App\Filament\Resources\MemberResource\Pages;
-use App\Filament\Resources\MemberResource\RelationManagers;
 use App\Models\Member;
 use App\Models\State;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Tables\Columns\Summarizers\Count;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Nnjeim\World\Models\Country;
-
-use function Illuminate\Log\log;
 
 class MemberResource extends Resource
 {
@@ -76,12 +68,11 @@ class MemberResource extends Resource
                         Forms\Components\Radio::make('gender')
                             ->options([
                                 GenderEnum::MALE->value => 'Male',
-                                GenderEnum::FEMALE->value  => 'Female'
+                                GenderEnum::FEMALE->value => 'Female',
                             ])
                             ->enum(GenderEnum::class)
                             ->required(),
                     ]),
-
 
                 Section::make('Address')
                     ->columns(2)
@@ -121,8 +112,7 @@ class MemberResource extends Resource
                         Forms\Components\TextInput::make('email')
                             ->email()
                             ->maxLength(255),
-                    ])
-
+                    ]),
 
             ]);
     }
@@ -146,9 +136,41 @@ class MemberResource extends Resource
                 Tables\Columns\TextColumn::make('occupation')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('generationalGroup.name')
+                    ->label('Generational Group')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('rightful_generational_group')
+                    ->label('Rightful Gen. Group')
+                    ->getStateUsing(function (Member $record) {
+                        if (! $record->date_of_birth) {
+                            return 'Unknown';
+                        }
+
+                        $age = now()->diffInYears($record->date_of_birth, true);
+
+                        if ($age < 12) {
+                            return 'Children Service';
+                        } elseif ($age >= 12 && $age < 18) {
+                            return 'JY';
+                        } elseif ($age >= 18 && $age < 30) {
+                            return 'YPG';
+                        } elseif ($age >= 30 && $age < 40) {
+                            return 'YAF';
+                        } else {
+                            // For ages 40+, return gender-specific fellowship
+                            return $record->gender === 'male' ? "Men's Fellowship" : "Women's Fellowship";
+                        }
+                    })
+                    ->searchable(false)
+                    ->sortable(false),
             ])
             ->filters([
                 //
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(MemberExporter::class),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -157,6 +179,7 @@ class MemberResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ExportBulkAction::make()->exporter(MemberExporter::class),
                 ]),
             ]);
     }
@@ -173,6 +196,8 @@ class MemberResource extends Resource
         return [
             'index' => Pages\ListMembers::route('/'),
             'create' => Pages\CreateMember::route('/create'),
+            'this-week-birthdays' => Pages\BirthdayMembers::route('/this-week-birthdays'),
+            'graduation' => Pages\GraduationMembers::route('/graduation'),
             'view' => Pages\ViewMember::route('/{record}'),
             'edit' => Pages\EditMember::route('/{record}/edit'),
         ];

@@ -7,6 +7,7 @@ use App\Filament\Widgets\WelcomeWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -30,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->registration()
+            ->databaseNotifications()
             ->passwordReset()
             ->emailVerification()
             ->profile()
@@ -47,6 +49,14 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
                 StatsOverview::class,
+            ])
+            ->navigationItems([
+                NavigationItem::make('This Week\'s Birthdays')
+                    ->url(fn () => \App\Filament\Resources\MemberResource::getUrl('this-week-birthdays'))
+                    ->icon('heroicon-o-cake'),
+                NavigationItem::make('Graduation')
+                    ->url(fn () => \App\Filament\Resources\MemberResource::getUrl('graduation'))
+                    ->icon('heroicon-o-arrow-up-right'),
             ])
             ->middleware([
                 EncryptCookies::class,

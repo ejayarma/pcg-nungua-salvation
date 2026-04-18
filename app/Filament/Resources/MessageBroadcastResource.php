@@ -51,9 +51,10 @@ class MessageBroadcastResource extends Resource
                     ->afterStateUpdated(fn (Forms\Set $set, ?string $state, callable $get) => $state === 'SMS' && $set('message', strip_tags($get('message')))),
 
                 Forms\Components\Select::make('recipient_group')
+                    ->required()
                     ->live()
                     ->options([
-                        'ALL' => 'All Users',
+                        'ALL' => 'All Members',
                         'GENERATIONAL_GROUP' => 'Generational Group',
                         'CUSTOM' => 'Custom',
                     ]),
@@ -70,6 +71,11 @@ class MessageBroadcastResource extends Resource
                     ->multiple()
                     ->options(Member::pluck('name', 'id')),
 
+                Forms\Components\DateTimePicker::make('scheduled_at')
+                    ->required()
+                    ->default(now()->addMinutes(5)->startOfMinute())
+                    ->minDate(now()->addMinutes(5)->startOfMinute())
+                    ->native(false),
             ]);
     }
 
@@ -83,6 +89,7 @@ class MessageBroadcastResource extends Resource
                     return $record->creator?->name;
                 })->label('Created By')->searchable()->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('scheduled_at')->dateTime()->sortable(),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (MessageBroadcastStatusEnum $state): string => match ($state) {

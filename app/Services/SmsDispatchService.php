@@ -62,7 +62,7 @@ class SmsDispatchService
         $estimatedCost = count($recipients) * ceil(strlen($message) / 160) * 0.03;
         Log::channel('broadcast-msg')->info("Current SMS balance: {$balance}. Estimated cost for this broadcast: {$estimatedCost}.");
 
-        if (! ($balance < $estimatedCost)) {
+        if ($balance < $estimatedCost) {
             throw new SmsDispatchException('Insufficient SMS balance');
         }
 

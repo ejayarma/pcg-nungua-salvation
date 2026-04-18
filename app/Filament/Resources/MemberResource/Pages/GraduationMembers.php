@@ -1,0 +1,121 @@
+<?php
+
+namespace App\Filament\Resources\MemberResource\Pages;
+
+use App\Filament\Resources\MemberResource;
+use App\Models\Member;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
+class GraduationMembers extends ListRecords
+{
+    protected static string $resource = MemberResource::class;
+
+    protected static ?string $title = 'Graduation';
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query
+                    ->whereNotNull('date_of_birth')
+                    ->where(function (Builder $query) {
+                        $query->whereDoesntHave('generationalGroup')
+                            ->orWhere(function (Builder $query) {
+                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) < 12')
+                                    ->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', 'Children Service'));
+                            })
+                            ->orWhere(function (Builder $query) {
+                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) >= 12')
+                                    ->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) < 18')
+                                    ->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', 'JY'));
+                            })
+                            ->orWhere(function (Builder $query) {
+                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) >= 18')
+                                    ->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) < 30')
+                                    ->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', 'YPG'));
+                            })
+                            ->orWhere(function (Builder $query) {
+                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) >= 30')
+                                    ->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) < 40')
+                                    ->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', 'YAF'));
+                            })
+                            ->orWhere(function (Builder $query) {
+                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) >= 40')
+                                    ->where(function (Builder $query) {
+                                        $query->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', "Men's Fellowship"))
+                                            ->where('gender', 'male');
+                                    })
+                                    ->orWhere(function (Builder $query) {
+                                        $query->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', "Women's Fellowship"))
+                                            ->where('gender', 'female');
+                                    });
+                            });
+                    });
+            })
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('phone')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('date_of_birth')
+                    ->label('Birthday')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('generationalGroup.name')
+                    ->label('Current Group')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('rightful_generational_group')
+                    ->label('Rightful Group')
+                    ->getStateUsing(fn (Member $record): string => self::getRightfulGroup($record))
+                    ->sortable(false),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    protected static function getRightfulGroup(Member $member): string
+    {
+        if (! $member->date_of_birth) {
+            return 'Unknown';
+        }
+
+        $age = now()->diffInYears($member->date_of_birth, true);
+
+        if ($age < 12) {
+            return 'Children Service';
+        }
+
+        if ($age < 18) {
+            return 'JY';
+        }
+
+        if ($age < 30) {
+            return 'YPG';
+        }
+
+        if ($age < 40) {
+            return 'YAF';
+        }
+
+        return $member->gender === 'male' ? "Men's Fellowship" : "Women's Fellowship";
+    }
+}
