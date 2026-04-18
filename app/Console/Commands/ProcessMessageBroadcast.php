@@ -10,6 +10,7 @@ use App\Models\MessageBroadcast;
 use App\Services\EmailDispatchService;
 use App\Services\SmsDispatchService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 
 class ProcessMessageBroadcast extends Command
@@ -45,8 +46,8 @@ class ProcessMessageBroadcast extends Command
 
         foreach ($pendingBroadcasts as $broadcast) {
             try {
-                // skip if 5 mins have not passed since creation to allow for any last minute edits
-                if ($broadcast->created_at && $broadcast->created_at->diffInMinutes(now()) < 5) {
+                // skip if scheduled time is in the future
+                if ($broadcast->scheduled_at && Date::make($broadcast->scheduled_at)->isFuture()) {
                     continue;
                 }
 

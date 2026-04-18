@@ -7,16 +7,17 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements Auditable, FilamentUser
 {
     use HasFactory, Notifiable;
-    use SoftDeletes;
     use MustVerifyEmail;
+    use \OwenIt\Auditing\Auditable;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -53,7 +54,6 @@ class User extends Authenticatable implements FilamentUser
             'is_admin' => 'boolean',
         ];
     }
-
 
     public function canAccessPanel(Panel $panel): bool
     {

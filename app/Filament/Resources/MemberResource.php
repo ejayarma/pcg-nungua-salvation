@@ -7,6 +7,7 @@ use App\Filament\Exports\MemberExporter;
 use App\Filament\Resources\MemberResource\Pages;
 use App\Models\Member;
 use App\Models\State;
+use CrescentPurchasing\FilamentAuditing\Filament\RelationManagers\AuditsRelationManager;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
@@ -187,7 +188,7 @@ class MemberResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AuditsRelationManager::class,
         ];
     }
 

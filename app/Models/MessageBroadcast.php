@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class MessageBroadcast extends Model
+class MessageBroadcast extends Model implements Auditable
 {
     use \Illuminate\Database\Eloquent\SoftDeletes;
+    use \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'title',
@@ -16,6 +18,8 @@ class MessageBroadcast extends Model
         'recipient_count',
         'recipient_group',
         'created_by',
+        'scheduled_at',
+        'status',
     ];
 
     protected $casts = [
