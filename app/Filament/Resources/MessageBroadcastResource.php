@@ -16,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 
 class MessageBroadcastResource extends Resource
@@ -107,9 +108,46 @@ class MessageBroadcastResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->visible(fn (MessageBroadcast $record) => $record->status === \App\Enums\MessageBroadcastStatusEnum::PENDING && Date::make($record->scheduled_at)->isFuture()),
+                Tables\Actions\Action::make('retry')
+                    ->label('Retry')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->visible(fn (MessageBroadcast $record) => $record->status === \App\Enums\MessageBroadcastStatusEnum::FAILED)
+                    ->form([
+                        Forms\Components\DateTimePicker::make('scheduled_at')
+                            ->label('Reschedule For')
+                            ->required()
+                            ->default(now()->addMinutes(5)->startOfMinute())
+                            ->minDate(now()->addMinutes(5)->startOfMinute())
+                            ->native(false),
+                    ])
+                    ->action(function (MessageBroadcast $record, array $data) {
+                        $record->update([
+                            'scheduled_at' => $data['scheduled_at'],
+                            'status' => MessageBroadcastStatusEnum::PENDING,
+                        ]);
+                    })
+                    ->successNotificationTitle('Broadcast will be retried at the scheduled time'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('retry')
+                        ->label('Retry Failed Broadcasts')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $records->each(function (MessageBroadcast $record) {
+                                if ($record->status === MessageBroadcastStatusEnum::FAILED) {
+                                    $record->update([
+                                        'scheduled_at' => now()->addMinutes(5)->startOfMinute(),
+                                        'status' => MessageBroadcastStatusEnum::PENDING,
+                                    ]);
+                                }
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->successNotificationTitle('Selected broadcasts will be retried'),
                     Tables\Actions\DeleteBulkAction::make()
                         ->visible(fn (MessageBroadcast $record) => $record->status === \App\Enums\MessageBroadcastStatusEnum::PENDING && Date::make($record->scheduled_at)->isFuture()),
                     Tables\Actions\ForceDeleteBulkAction::make(),
