@@ -76,9 +76,8 @@ class MessageBroadcastResource extends Resource
 
                 Forms\Components\DateTimePicker::make('scheduled_at')
                     ->required()
-                    ->default(now()->addMinutes(5)->startOfMinute())
-                    ->minDate(now()->addMinutes(5)->startOfMinute())
-                    ->native(false),
+                    ->default(now()->addMinutes(10)->startOfMinute())
+                    ->minDate(now()->addMinutes(5)->startOfMinute()),
             ]);
     }
 
