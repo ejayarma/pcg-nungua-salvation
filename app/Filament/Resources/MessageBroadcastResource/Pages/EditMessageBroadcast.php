@@ -13,6 +13,8 @@ class EditMessageBroadcast extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\ViewAction::make(),
+            // Actions\DeleteAction::make(),
             Actions\DeleteAction::make(),
             Actions\ForceDeleteAction::make(),
             Actions\RestoreAction::make(),

@@ -7,6 +7,7 @@ use App\Filament\Resources\MessageBroadcastResource\Pages;
 use App\Models\GenerationalGroup;
 use App\Models\Member;
 use App\Models\MessageBroadcast;
+use CrescentPurchasing\FilamentAuditing\Filament\RelationManagers\AuditsRelationManager;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,6 +16,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 
 class MessageBroadcastResource extends Resource
 {
@@ -51,9 +54,10 @@ class MessageBroadcastResource extends Resource
                     ->afterStateUpdated(fn (Forms\Set $set, ?string $state, callable $get) => $state === 'SMS' && $set('message', strip_tags($get('message')))),
 
                 Forms\Components\Select::make('recipient_group')
+                    ->required()
                     ->live()
                     ->options([
-                        'ALL' => 'All Users',
+                        'ALL' => 'All Members',
                         'GENERATIONAL_GROUP' => 'Generational Group',
                         'CUSTOM' => 'Custom',
                     ]),
@@ -70,6 +74,11 @@ class MessageBroadcastResource extends Resource
                     ->multiple()
                     ->options(Member::pluck('name', 'id')),
 
+                Forms\Components\DateTimePicker::make('scheduled_at')
+                    ->required()
+                    ->default(now()->addMinutes(5)->startOfMinute())
+                    ->minDate(now()->addMinutes(5)->startOfMinute())
+                    ->native(false),
             ]);
     }
 
@@ -83,6 +92,7 @@ class MessageBroadcastResource extends Resource
                     return $record->creator?->name;
                 })->label('Created By')->searchable()->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('scheduled_at')->dateTime()->sortable(),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (MessageBroadcastStatusEnum $state): string => match ($state) {
@@ -95,11 +105,51 @@ class MessageBroadcastResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn (MessageBroadcast $record) => $record->status === \App\Enums\MessageBroadcastStatusEnum::PENDING && Date::make($record->scheduled_at)->isFuture()),
+                Tables\Actions\Action::make('retry')
+                    ->label('Retry')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->visible(fn (MessageBroadcast $record) => $record->status === \App\Enums\MessageBroadcastStatusEnum::FAILED)
+                    ->form([
+                        Forms\Components\DateTimePicker::make('scheduled_at')
+                            ->label('Reschedule For')
+                            ->required()
+                            ->default(now()->addMinutes(5)->startOfMinute())
+                            ->minDate(now()->addMinutes(5)->startOfMinute())
+                            ->native(false),
+                    ])
+                    ->action(function (MessageBroadcast $record, array $data) {
+                        $record->update([
+                            'scheduled_at' => $data['scheduled_at'],
+                            'status' => MessageBroadcastStatusEnum::PENDING,
+                        ]);
+                    })
+                    ->successNotificationTitle('Broadcast will be retried at the scheduled time'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('retry')
+                        ->label('Retry Failed Broadcasts')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $records->each(function (MessageBroadcast $record) {
+                                if ($record->status === MessageBroadcastStatusEnum::FAILED) {
+                                    $record->update([
+                                        'scheduled_at' => now()->addMinutes(5)->startOfMinute(),
+                                        'status' => MessageBroadcastStatusEnum::PENDING,
+                                    ]);
+                                }
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->successNotificationTitle('Selected broadcasts will be retried'),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn (MessageBroadcast $record) => $record->status === \App\Enums\MessageBroadcastStatusEnum::PENDING && Date::make($record->scheduled_at)->isFuture()),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
@@ -109,7 +159,7 @@ class MessageBroadcastResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AuditsRelationManager::class,
         ];
     }
 

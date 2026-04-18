@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Member extends Model
+class Member extends Model implements Auditable
 {
     use HasFactory;
     use SoftDeletes;
+    use \OwenIt\Auditing\Auditable;
+
+    protected $table = 'members';
 
     /**
      * The attributes that are mass assignable.

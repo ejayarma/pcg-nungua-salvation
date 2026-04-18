@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\GenerationalGroup;
 use App\Models\Member;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -25,14 +24,13 @@ class DatabaseSeeder extends Seeder
 
         $this->call(StateSeeder::class);
 
-        GenerationalGroup::factory()->count(6)->create();
-        GenerationalGroup::query()->find(1)->update(['name' => 'Children Service']);
-        GenerationalGroup::query()->find(2)->update(['name' => 'JY']);
-        GenerationalGroup::query()->find(3)->update(['name' => 'YPG']);
-        GenerationalGroup::query()->find(4)->update(['name' => 'YAF']);
-        GenerationalGroup::query()->find(5)->update(['name' => "Women's Fellowship"]);
-        GenerationalGroup::query()->find(6)->update(['name' => "Men's Fellowship"]);
-
+        GenerationalGroup::count() || GenerationalGroup::factory()->count(6)->create();
+        GenerationalGroup::query()->find(1)->update(['name' => 'Children Service', 'description' => 'Children below 12 years of age']);
+        GenerationalGroup::query()->find(2)->update(['name' => 'JY', 'description' => 'Teenagers (From 12 to 18 years)']);
+        GenerationalGroup::query()->find(3)->update(['name' => 'YPG', 'description' => "Young People's Guild (from 18 to 29 years)"]);
+        GenerationalGroup::query()->find(4)->update(['name' => 'YAF', 'description' => 'Young Adults Fellowship (From 30 to 39 years)']);
+        GenerationalGroup::query()->find(5)->update(['name' => "Women's Fellowship", 'description' => 'Women aged above 40']);
+        GenerationalGroup::query()->find(6)->update(['name' => "Men's Fellowship", 'description' => 'Men aged above 40']);
 
         Member::factory(100)->create();
     }
