@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\CheckSmsBalance;
 use App\Console\Commands\ProcessMessageBroadcast;
 use App\Console\Commands\SendBirthdayMessage;
 use Illuminate\Foundation\Inspiring;
@@ -13,3 +14,5 @@ Artisan::command('inspire', function () {
 Schedule::command(SendBirthdayMessage::class)->dailyAt('6:00');
 
 Schedule::command(ProcessMessageBroadcast::class)->everyFiveMinutes();
+
+Schedule::command(CheckSmsBalance::class)->dailyAt('7:00');
