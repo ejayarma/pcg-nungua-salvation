@@ -46,7 +46,10 @@ class MemberResource extends Resource
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('phone')
+                            ->alphaNum()
+                            ->required()
                             ->maxLength(255),
+
                         Forms\Components\DatePicker::make('date_of_birth')
                             ->suffixIcon('heroicon-m-calendar')
                             ->maxDate(now())

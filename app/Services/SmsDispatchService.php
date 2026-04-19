@@ -32,6 +32,31 @@ class SmsDispatchService
         $this->creditUrl = config('services.deywuro.credit_url');
     }
 
+    public function getBalance(): float
+    {
+        $balanceResponse = Http::get($this->creditUrl, [
+            'username' => $this->apiUsername,
+            'password' => $this->apiPassword,
+        ]);
+
+        if ($balanceResponse->failed()) {
+            Log::channel('broadcast-msg')->warning('Failed to fetch SMS balance');
+
+            return 0.0;
+        }
+
+        return round((float) $balanceResponse->json('balance', 0), 2);
+    }
+
+    public function getEstimatedCost(int $recipientCount, string $message): float
+    {
+        if ($recipientCount <= 0 || trim($message) === '') {
+            return 0.0;
+        }
+
+        return round($recipientCount * ceil(strlen($message) / 160) * 0.03, 2);
+    }
+
     public function sendSms(array $recipients, string $message)
     {
         $recipients = $this->normalizeRecipients($recipients);
