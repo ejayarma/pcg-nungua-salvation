@@ -24,7 +24,7 @@ class BirthdayMembers extends ListRecords
 
                 return $query
                     ->whereNotNull('date_of_birth')
-                    ->whereRaw("TO_DATE(EXTRACT(YEAR FROM CURRENT_DATE) || '-' || EXTRACT(MONTH FROM date_of_birth) || '-' || EXTRACT(DAY FROM date_of_birth), 'YYYY-MM-DD') BETWEEN ? AND ?", [
+                    ->whereRaw("DATE(CONCAT(YEAR(CURDATE()), '-', DATE_FORMAT(date_of_birth, '%m-%d'))) BETWEEN ? AND ?", [
                         $startOfWeek->format('Y-m-d'),
                         $endOfWeek->format('Y-m-d'),
                     ]);

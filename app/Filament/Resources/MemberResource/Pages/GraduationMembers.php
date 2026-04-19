@@ -24,26 +24,26 @@ class GraduationMembers extends ListRecords
                     ->where(function (Builder $query) {
                         $query->whereDoesntHave('generationalGroup')
                             ->orWhere(function (Builder $query) {
-                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) < 12')
+                                $query->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) < 12')
                                     ->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', 'Children Service'));
                             })
                             ->orWhere(function (Builder $query) {
-                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) >= 12')
-                                    ->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) < 18')
+                                $query->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) >= 12')
+                                    ->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) < 18')
                                     ->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', 'JY'));
                             })
                             ->orWhere(function (Builder $query) {
-                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) >= 18')
-                                    ->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) < 30')
+                                $query->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) >= 18')
+                                    ->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) < 30')
                                     ->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', 'YPG'));
                             })
                             ->orWhere(function (Builder $query) {
-                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) >= 30')
-                                    ->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) < 40')
+                                $query->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) >= 30')
+                                    ->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) < 40')
                                     ->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', 'YAF'));
                             })
                             ->orWhere(function (Builder $query) {
-                                $query->whereRaw('EXTRACT(YEAR FROM age(date_of_birth)) >= 40')
+                                $query->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) >= 40')
                                     ->where(function (Builder $query) {
                                         $query->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', "Men's Fellowship"))
                                             ->where('gender', 'male');
