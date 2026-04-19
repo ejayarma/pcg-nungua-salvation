@@ -68,4 +68,14 @@ class MessageBroadcastPolicy
     {
         return $model->status === MessageBroadcastStatusEnum::PENDING && Date::make($model->scheduled_at) > now();
     }
+
+    /**
+     * Determine whether the user can restore audit records for the model.
+     */
+    public function restoreAudit(User $user, MessageBroadcast $model): bool
+    {
+        $allowedEmails = array_filter(array_map('trim', config('audit.restore.allowed_emails', [])));
+
+        return $user->is_admin && in_array($user->email, $allowedEmails, true);
+    }
 }

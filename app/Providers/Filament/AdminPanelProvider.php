@@ -8,6 +8,7 @@ use CrescentPurchasing\FilamentAuditing\FilamentAuditingPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
@@ -44,6 +45,11 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
             ])
+            ->navigationGroups([
+                NavigationGroup::make('General'),
+                NavigationGroup::make('Registration'),
+                NavigationGroup::make('Communications'),
+            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 WelcomeWidget::class,
@@ -54,10 +60,12 @@ class AdminPanelProvider extends PanelProvider
             ->navigationItems([
                 NavigationItem::make('This Week\'s Birthdays')
                     ->url(fn () => \App\Filament\Resources\MemberResource::getUrl('this-week-birthdays'))
-                    ->icon('heroicon-o-cake'),
+                    ->icon('heroicon-o-cake')
+                    ->group('Registration'),
                 NavigationItem::make('Graduation')
                     ->url(fn () => \App\Filament\Resources\MemberResource::getUrl('graduation'))
-                    ->icon('heroicon-o-arrow-up-right'),
+                    ->icon('heroicon-o-arrow-up-right')
+                    ->group('Registration'),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -74,7 +82,8 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-                FilamentAuditingPlugin::make(),
+                FilamentAuditingPlugin::make()
+                    ->restorePermission('restoreAudit'),
             ]);
     }
 }

@@ -10,6 +10,14 @@ class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['is_admin'] = false;
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

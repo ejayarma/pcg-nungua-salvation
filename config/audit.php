@@ -63,6 +63,10 @@ return [
         'restored',
     ],
 
+    'restore' => [
+        'allowed_emails' => explode(',', env('AUDIT_RESTORE_ALLOWED_EMAILS', '')),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Strict Mode

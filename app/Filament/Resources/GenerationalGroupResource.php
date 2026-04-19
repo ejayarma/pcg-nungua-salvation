@@ -3,22 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\GenerationalGroupResource\Pages;
-use App\Filament\Resources\GenerationalGroupResource\RelationManagers;
 use App\Models\GenerationalGroup;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class GenerationalGroupResource extends Resource
 {
     protected static ?string $model = GenerationalGroup::class;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $navigationIcon = 'heroicon-m-user-group';
+
+    protected static ?string $navigationGroup = 'General';
+
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {

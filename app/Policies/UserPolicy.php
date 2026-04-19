@@ -55,10 +55,12 @@ class UserPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determine whether the user can restore audit records for the model.
      */
-    public function forceDelete(User $user, User $model): bool
+    public function restoreAudit(User $user, User $model): bool
     {
-        return $user->is_admin && $user->email == $model->email;
+        $allowedEmails = array_filter(array_map('trim', config('audit.restore.allowed_emails', [])));
+
+        return $user->is_admin && in_array($user->email, $allowedEmails, true);
     }
 }

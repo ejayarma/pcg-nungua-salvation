@@ -25,6 +25,8 @@ class MessageBroadcastResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Communications';
+
     public static function form(Form $form): Form
     {
         return $form
