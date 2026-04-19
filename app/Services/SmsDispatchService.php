@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\SmsDispatchException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -20,6 +21,18 @@ class SmsDispatchService
 
     protected $creditUrl;
 
+    protected $topupUrl;
+
+    protected $topupUid;
+
+    protected $topupUsername;
+
+    protected $topupPassword;
+
+    protected $topupDescription;
+
+    protected $topupVoucherNumber;
+
     /**
      * Create a new class instance.
      */
@@ -29,10 +42,17 @@ class SmsDispatchService
         $this->apiPassword = config('services.deywuro.api_password');
         $this->senderId = config('services.deywuro.sender_id');
         $this->apiUrl = config('services.deywuro.sms_url');
-        $this->creditUrl = config('services.deywuro.credit_url');
+        $this->creditUrl = config('services.deywuro.balance_url');
+        $this->topupUrl = config('services.deywuro.topup_url');
+        $this->topupPassword = config('services.deywuro.topup_password');
+        $this->topupUid = config('services.deywuro.topup_uid');
+        $this->topupDescription = config('services.deywuro.topup_description');
+        $this->topupVoucherNumber = config('services.deywuro.topup_voucher_number');
+        $this->topupUsername = config('services.deywuro.topup_username');
+
     }
 
-    public function getBalance(): float
+    private function fetchBalanceFromApi(): float
     {
         $balanceResponse = Http::get($this->creditUrl, [
             'username' => $this->apiUsername,
@@ -40,12 +60,22 @@ class SmsDispatchService
         ]);
 
         if ($balanceResponse->failed()) {
-            Log::channel('broadcast-msg')->warning('Failed to fetch SMS balance');
+            Log::channel('broadcast-msg')->warning('Failed to fetch SMS balance from API');
 
             return 0.0;
         }
 
+        Log::channel('broadcast-msg')->info('Fetched SMS balance from API successfully. Response: '.json_encode($balanceResponse->json()));
+
         return round((float) $balanceResponse->json('balance', 0), 2);
+    }
+
+    public function getBalance(): float
+    {
+        return Cache::remember('sms_balance', now()->addMinutes(2), function () {
+            return $this->fetchBalanceFromApi();
+        });
+
     }
 
     public function getEstimatedCost(int $recipientCount, string $message): float
@@ -55,6 +85,44 @@ class SmsDispatchService
         }
 
         return round($recipientCount * ceil(strlen($message) / 160) * 0.03, 2);
+    }
+
+    public function topUpSms(string $phoneNumber, string $network, float $amount): void
+    {
+
+        $data = [
+            'msisdn' => '233'.substr($phoneNumber, -9),
+            'amount' => $amount,
+            'description' => $this->topupDescription,
+            'uid' => $this->topupUid,
+            'uname' => $this->apiUsername,
+            'user_id' => $this->topupUsername,
+            'password' => $this->topupPassword,
+            'username' => $this->apiUsername,
+            'network' => $network,
+            'voucher_number' => $this->topupVoucherNumber,
+            'option' => 'SMS',
+        ];
+
+        $topUpResponse = Http::asJson()->post($this->topupUrl, $data);
+
+        $logContext = [
+            'url' => $this->topupUrl,
+            'phone' => substr($phoneNumber, 0, 3).'****'.substr($phoneNumber, -3),
+            'network' => $network,
+            'amount' => $amount,
+            'status' => $topUpResponse->status(),
+            'body' => $topUpResponse->body(),
+        ];
+
+        Log::channel('broadcast-msg')->info('Initiated SMS top-up request.', $logContext);
+
+        if ($topUpResponse->failed()) {
+            Log::channel('broadcast-msg')->warning('SMS top-up request failed', $logContext);
+
+            throw new SmsDispatchException('SMS top-up request failed.');
+        }
+
     }
 
     public function sendSms(array $recipients, string $message)
@@ -111,7 +179,15 @@ class SmsDispatchService
 
         $response = Http::post($this->apiUrl, $data);
 
-        Log::channel('broadcast-msg')->info('Sent SMS chunk. Request data: '.json_encode($data).'. Response: '.json_encode($response->json()));
+        unset($data['password']);
+        $desensitizedRecipients = collect($recipients)->map(fn ($number) => substr($number, 0, 3).'****'.substr($number, -3))->all();
+        Log::channel('broadcast-msg')->info('Sent SMS chunk. Request data: '.json_encode(array_merge($data, ['destination' => $desensitizedRecipients])).'. Response: '.json_encode($response->json()));
+
+        if ($response->failed()) {
+            Log::channel('broadcast-msg')->warning('SMS dispatch failed for chunk. Request data: '.json_encode(array_merge($data, ['destination' => $desensitizedRecipients])).'. Response: '.json_encode($response->json()));
+
+            throw new SmsDispatchException('Failed to send SMS chunk.');
+        }
 
         return $response->json();
     }

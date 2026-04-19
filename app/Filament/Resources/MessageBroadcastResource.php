@@ -12,6 +12,7 @@ use App\Services\SmsDispatchService;
 use CrescentPurchasing\FilamentAuditing\Filament\RelationManagers\AuditsRelationManager;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -20,7 +21,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 
 class MessageBroadcastResource extends Resource
 {
@@ -102,9 +105,110 @@ class MessageBroadcastResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->header(fn () => view('filament.message-broadcast-sms-balance-card', [
-                'balance' => app(SmsDispatchService::class)->getBalance(),
-            ]))
+            ->headerActions([
+                Tables\Actions\Action::make('sms_balance')
+                    ->icon(function () {
+                        $balance = app(SmsDispatchService::class)->getBalance();
+
+                        return $balance >= 25 ? 'heroicon-o-currency-dollar' : 'heroicon-o-face-frown';
+                    })
+                    ->outlined(true)
+                    ->button(false)
+                    ->modal(false)
+                    ->action(fn () => null)
+                    ->extraAttributes([
+                        'class' => 'pointer-events-none',
+                    ])
+                    ->label(fn () => 'SMS Credit Balance: GHS '.number_format(app(SmsDispatchService::class)->getBalance(), 2))
+                    ->color(function () {
+                        $balance = app(SmsDispatchService::class)->getBalance();
+
+                        return $balance >= 25 ? 'success' : 'danger';
+                    }),
+                Tables\Actions\Action::make('top_up_sms')
+                    ->label('Top Up')
+                    ->icon('heroicon-o-credit-card')
+                    ->button()
+                    ->modalHeading('Top Up SMS Balance')
+                    ->form([
+                        Forms\Components\TextInput::make('amount')
+                            ->label('Amount')
+                            ->required()
+                            ->numeric()
+                            ->minValue(10)
+                            ->helperText('Enter the amount to top up in GHS.'),
+                        Forms\Components\TextInput::make('phone_number')
+                            ->label('Phone Number')
+                            ->required()
+                            ->rules(['digits:10'])
+                            ->live()
+                            ->placeholder('0244123456')
+                            ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
+                                $network = null;
+
+                                if (Str::startsWith($state, ['024', '054', '055', '053', '059'])) {
+                                    $network = 'MTN';
+                                } elseif (Str::startsWith($state, ['020', '050'])) {
+                                    $network = 'Vodafone';
+                                } elseif (Str::startsWith($state, ['056', '026', '057', '027'])) {
+                                    $network = 'Airtel';
+                                }
+
+                                $set('network', $network);
+                            }),
+                        Forms\Components\Select::make('network')
+                            ->label('Network')
+                            ->required()
+                            ->options([
+                                'Vodafone' => 'Vodafone',
+                                'MTN' => 'MTN',
+                                'Airtel' => 'AirtelTigo',
+                            ]),
+                    ])
+                    ->action(function (array $data) {
+
+                        try {
+                            app(SmsDispatchService::class)->topUpSms(
+                                $data['phone_number'],
+                                $data['network'],
+                                (float) $data['amount'],
+                            );
+                        } catch (\Exception $e) {
+
+                            Log::channel('broadcast-msg')->error('Error initiating SMS top-up', [
+                                'phone' => substr($data['phone_number'], 0, 3).'****'.substr($data['phone_number'], -3),
+                                'network' => $data['network'],
+                                'amount' => $data['amount'],
+                                'error' => $e->getMessage(),
+                            ]);
+
+                            Notification::make()
+                                ->title('Top-up failed')
+                                ->danger()
+                                ->body('An error occurred while initiating the top-up: '.$e->getMessage())
+                                ->send();
+
+                            return;
+                        }
+
+                        Notification::make()
+                            ->title('SMS balance top up initiated')
+                            ->success()
+                            ->body('Your top-up request has been initiated successfully. Please approve the transaction on your mobile device to complete the process.')
+                            ->send();
+
+                    })
+                    ->failureNotification(fn (array $data, \Throwable $exception) => Notification::make()
+                        ->title('Top-up failed')
+                        ->danger()
+                        ->body($exception->getMessage()),
+                    )
+                    ->successNotification(fn (array $data) => Notification::make()
+                        ->title('SMS balance top up initiated')
+                        ->success()
+                        ->body('Your top-up request has been initiated successfully. Please approve the transaction on your mobile device to complete the process.'),
+                    ),
+            ])
             ->columns([
                 TextColumn::make('title')->searchable()->sortable(),
                 TextColumn::make('medium')->searchable()->sortable(),

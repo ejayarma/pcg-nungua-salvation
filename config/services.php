@@ -40,7 +40,13 @@ return [
         'api_password' => env('DEYWURO_PASSWORD'),
         'sender_id' => env('DEYWURO_SENDER_ID'),
         'sms_url' => env('DEYWURO_API_URL', 'https://deywuro.com/api/sms'),
-        'credit_url' => env('DEYWURO_CREDIT_URL', 'https://api.deywuro.com/bulksms/credit_bal.php'),
+        'balance_url' => env('DEYWURO_CREDIT_URL', 'https://api.deywuro.com/bulksms/credit_bal.php'),
+        'topup_url' => env('DEYWURO_TOPUP_URL', 'https://www.deywuro.com/api/make_payment'),
+        'topup_password' => env('DEYWURO_TOPUP_PASSWORD', 'hdgt2314'),
+        'topup_username' => env('DEYWURO_TOPUP_USERNAME', 'npdeywuro'),
+        'topup_voucher_number' => env('DEYWURO_TOPUP_VOUCHER_NUMBER', '1'),
+        'topup_uid' => env('DEYWURO_TOPUP_UID', '14058'),
+        'topup_description' => env('DEYWURO_TOPUP_DESCRIPTION', 'Deywuro'),
     ],
 
 ];
