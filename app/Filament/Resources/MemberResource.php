@@ -12,6 +12,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Navigation\NavigationItem;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportAction;
@@ -28,6 +29,30 @@ class MemberResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    public static function getNavigationItems(): array
+    {
+        return [
+
+            NavigationItem::make('Members')
+                ->url(fn () => static::getUrl())
+                ->icon(static::$navigationIcon)
+                ->group(static::$navigationGroup)
+                ->isActiveWhen(fn () => request()->is('*members*') && ! request()->is('*graduation*', '*birthday*')),
+
+            NavigationItem::make('Graduation')
+                ->url(fn () => static::getUrl('graduation'))
+                ->icon('heroicon-o-academic-cap')
+                ->group(static::$navigationGroup)
+                ->isActiveWhen(fn () => request()->is('*/members/graduation')),
+
+            NavigationItem::make("This Week's Birthdays")
+                ->url(fn () => static::getUrl('this-week-birthdays'))
+                ->icon('heroicon-o-cake')
+                ->group(static::$navigationGroup)
+                ->isActiveWhen(fn () => request()->is('*birthday*')),
+        ];
     }
 
     public static function form(Form $form): Form
