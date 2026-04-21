@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class MemberResource extends Resource
 {
@@ -167,6 +168,11 @@ class MemberResource extends Resource
                 Tables\Columns\TextColumn::make('occupation')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('is_communicant')
+                    ->label('Communicant')
+                    ->getStateUsing(function (Member $record) {
+                        return $record->is_communicant ? 'Yes' : 'No';
+                    }),
                 Tables\Columns\TextColumn::make('generationalGroup.name')
                     ->label('Generational Group')
                     ->searchable()
@@ -174,24 +180,27 @@ class MemberResource extends Resource
                 Tables\Columns\TextColumn::make('rightful_generational_group')
                     ->label('Rightful Gen. Group')
                     ->getStateUsing(function (Member $record) {
+                        $genGroup = '';
+
                         if (! $record->date_of_birth) {
                             return 'Unknown';
                         }
 
-                        $age = now()->diffInYears($record->date_of_birth, true);
+                        $age = now()->diffInYears($record->date_of_birth);
 
                         if ($age < 12) {
-                            return 'Children Service';
+                            $genGroup = 'Children Service';
                         } elseif ($age >= 12 && $age < 18) {
-                            return 'JY';
+                            $genGroup = 'JY';
                         } elseif ($age >= 18 && $age < 30) {
-                            return 'YPG';
+                            $genGroup = 'YPG';
                         } elseif ($age >= 30 && $age < 40) {
-                            return 'YAF';
+                            $genGroup = 'YAF';
                         } else {
-                            // For ages 40+, return gender-specific fellowship
-                            return $record->gender === 'male' ? "Men's Fellowship" : "Women's Fellowship";
+                            $genGroup = Str::upper($record->gender) === 'MALE' ? "Men's Fellowship" : "Women's Fellowship";
                         }
+
+                        return $genGroup;
                     })
                     ->searchable(false)
                     ->sortable(false),

@@ -46,11 +46,11 @@ class GraduationMembers extends ListRecords
                                 $query->whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) >= 40')
                                     ->where(function (Builder $query) {
                                         $query->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', "Men's Fellowship"))
-                                            ->where('gender', 'male');
+                                            ->where('gender', 'MALE');
                                     })
                                     ->orWhere(function (Builder $query) {
                                         $query->whereHas('generationalGroup', fn ($query) => $query->where('name', '!=', "Women's Fellowship"))
-                                            ->where('gender', 'female');
+                                            ->where('gender', 'FEMALE');
                                     });
                             });
                     });

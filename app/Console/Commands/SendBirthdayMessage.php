@@ -34,7 +34,7 @@ class SendBirthdayMessage extends Command
      */
     public function handle(): int
     {
-        $message = $this->option('message') ?: 'Happy birthday! Wishing you a blessed day from PCG Nungua Salvation.';
+        $message = $this->option('message') ?: 'Wishing you a blessed day from PCG Salvation Congregation, Nungua!';
         $dryRun = $this->option('dry-run');
 
         $members = Member::query()
@@ -49,20 +49,23 @@ class SendBirthdayMessage extends Command
             return 0;
         }
 
-        $phoneNumbers = $members
-            ->map(fn ($member) => $member->phone ?: ($member->contactPerson?->phone ?? null))
-            ->filter()
-            ->unique()
+        // Filter members with valid phone numbers
+        $membersWithPhones = $members
+            ->map(fn ($member) => [
+                'member' => $member,
+                'phone' => $member->phone ?: ($member->contactPerson?->phone ?? null),
+            ])
+            ->filter(fn ($item) => $item['phone'])
             ->values();
 
-        if ($phoneNumbers->isEmpty()) {
+        if ($membersWithPhones->isEmpty()) {
             $this->warn('No valid phone numbers found for today\'s birthday members.');
 
             return 0;
         }
 
         $this->info('Found '.$members->count().' birthday member(s) today.');
-        $this->info('Sending SMS to '.$phoneNumbers->count().' unique phone number(s).');
+        $this->info('Sending personalized SMS to '.$membersWithPhones->count().' member(s).');
 
         $adminEmails = User::where('is_admin', true)
             ->whereNotNull('email')
@@ -74,8 +77,12 @@ class SendBirthdayMessage extends Command
         if ($dryRun) {
             $this->info('Dry run enabled. The following admin emails would receive the birthday notice:');
             $adminEmails->each(fn ($email) => $this->line($email));
-            $this->info('Dry run enabled. The following numbers would receive the message:');
-            $phoneNumbers->each(fn ($phone) => $this->line($phone));
+            $this->info('Dry run enabled. The following personalized messages would be sent:');
+            $membersWithPhones->each(function ($item) use ($message) {
+                $memberName = $item['member']->name;
+                $personalizedMessage = "Happy birthday, {$memberName}! {$message}";
+                $this->line("{$item['phone']}: {$personalizedMessage}");
+            });
 
             return 0;
         }
@@ -90,23 +97,36 @@ class SendBirthdayMessage extends Command
         }
 
         try {
-            app(SmsDispatchService::class)->sendSms($phoneNumbers->toArray(), $message);
-            $this->info('Birthday SMS broadcast completed successfully.');
+            $smsService = app(SmsDispatchService::class);
+            $failedNumbers = [];
 
-            return 0;
-        } catch (SmsDispatchException $exception) {
-            $this->error('Failed to send birthday SMS broadcast: '.$exception->getMessage());
-            Log::channel('broadcast-msg')->error('Birthday SMS broadcast failed.', [
-                'error' => $exception->getMessage(),
-                'numbers' => $phoneNumbers->all(),
-            ]);
+            foreach ($membersWithPhones as $item) {
+                $memberName = $item['member']->name;
+                $personalizedMessage = "Happy birthday, {$memberName}! {$message}";
 
-            return 1;
+                try {
+                    $smsService->sendSms([$item['phone']], $personalizedMessage);
+                } catch (SmsDispatchException $e) {
+                    $failedNumbers[] = $item['phone'];
+                    Log::channel('broadcast-msg')->warning('Failed to send SMS to '.$item['phone'], [
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            if ($failedNumbers === []) {
+                $this->info('Personalized birthday SMS sent to all '.$membersWithPhones->count().' member(s) successfully.');
+
+                return 0;
+            } else {
+                $this->warn('Sent SMS to '.$membersWithPhones->count() - count($failedNumbers).' member(s). Failed to send to '.count($failedNumbers).' number(s).');
+
+                return 1;
+            }
         } catch (\Exception $exception) {
             $this->error('An unexpected error occurred while sending birthday SMS broadcast: '.$exception->getMessage());
             Log::channel('broadcast-msg')->error('Birthday SMS broadcast unexpected failure.', [
                 'error' => $exception->getMessage(),
-                'numbers' => $phoneNumbers->all(),
             ]);
 
             return 1;

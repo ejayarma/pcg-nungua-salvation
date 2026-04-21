@@ -46,7 +46,7 @@ class CheckSmsBalance extends Command
     private function getSmsCreditBalance(): float
     {
         try {
-            $creditUrl = config('services.deywuro.credit_url');
+            $creditUrl = config('services.deywuro.balance_url');
             $apiUsername = config('services.deywuro.api_username');
             $apiPassword = config('services.deywuro.api_password');
 
