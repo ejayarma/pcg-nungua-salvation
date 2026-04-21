@@ -21,6 +21,11 @@ class MemberExporter extends Exporter
             ExportColumn::make('email')->label('Email'),
             ExportColumn::make('date_of_birth')->label('Date of Birth'),
             ExportColumn::make('occupation')->label('Occupation'),
+            ExportColumn::make('is_communicant')
+                ->label('Communicant')
+                ->getStateUsing(function (Member $record) {
+                    return $record->is_communicant ? 'Yes' : 'No';
+                }),
             ExportColumn::make('generationalGroup.name')->label('Generational Group'),
             ExportColumn::make('rightful_generational_group')
                 ->label('Rightful Gen. Group')
@@ -32,7 +37,7 @@ class MemberExporter extends Exporter
                         return 'Unknown';
                     }
 
-                    $age = now()->diffInYears($record->date_of_birth);
+                    $age = now()->diffInYears($record->date_of_birth, true);
 
                     if ($age < 12) {
                         $genGroup = 'Children Service';
@@ -47,11 +52,6 @@ class MemberExporter extends Exporter
                     }
 
                     return $genGroup;
-                }),
-            ExportColumn::make('is_communicant')
-                ->label('Communicant')
-                ->getStateUsing(function (Member $record) {
-                    return $record->is_communicant ? 'Yes' : 'No';
                 }),
         ];
     }

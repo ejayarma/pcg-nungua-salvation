@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MemberResource\Pages;
 
 use App\Filament\Resources\MemberResource;
+use App\Models\Member;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -47,10 +48,24 @@ class BirthdayMembers extends ListRecords
                 Tables\Columns\TextColumn::make('occupation')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('is_communicant')
+                    ->label('Communicant')
+                    ->badge()
+                    ->getStateUsing(function (Member $record) {
+                        return $record->is_communicant ? 'Yes' : 'No';
+                    })->colors([
+                        'success' => fn ($state) => $state === 'Yes',
+                        'danger' => fn ($state) => $state === 'No',
+                    ]),
                 Tables\Columns\TextColumn::make('generationalGroup.name')
-                    ->label('Generational Group')
+                    ->label('Gen. Group')
                     ->searchable()
                     ->sortable(),
+                // Tables\Columns\TextColumn::make('rightful_generational_group')
+                //     ->label('Rightful Gen. Group')
+                //     ->getStateUsing(fn (Member $record): string => $record->getRightfulGroup())
+                //     ->sortable(false)
+                //     ->searchable(false),
             ])
             ->filters([
                 //

@@ -17,7 +17,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 
 class MemberResource extends Resource
 {
@@ -170,40 +169,22 @@ class MemberResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('is_communicant')
                     ->label('Communicant')
+                    ->badge()
                     ->getStateUsing(function (Member $record) {
                         return $record->is_communicant ? 'Yes' : 'No';
-                    }),
+                    })->colors([
+                        'success' => fn ($state) => $state === 'Yes',
+                        'danger' => fn ($state) => $state === 'No',
+                    ]),
                 Tables\Columns\TextColumn::make('generationalGroup.name')
-                    ->label('Generational Group')
+                    ->label('Gen. Group')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('rightful_generational_group')
-                    ->label('Rightful Gen. Group')
-                    ->getStateUsing(function (Member $record) {
-                        $genGroup = '';
-
-                        if (! $record->date_of_birth) {
-                            return 'Unknown';
-                        }
-
-                        $age = now()->diffInYears($record->date_of_birth);
-
-                        if ($age < 12) {
-                            $genGroup = 'Children Service';
-                        } elseif ($age >= 12 && $age < 18) {
-                            $genGroup = 'JY';
-                        } elseif ($age >= 18 && $age < 30) {
-                            $genGroup = 'YPG';
-                        } elseif ($age >= 30 && $age < 40) {
-                            $genGroup = 'YAF';
-                        } else {
-                            $genGroup = Str::upper($record->gender) === 'MALE' ? "Men's Fellowship" : "Women's Fellowship";
-                        }
-
-                        return $genGroup;
-                    })
-                    ->searchable(false)
-                    ->sortable(false),
+                // Tables\Columns\TextColumn::make('rightful_generational_group')
+                //     ->label('Rightful Gen. Group')
+                //     ->getStateUsing(fn (Member $record): string => $record->getRightfulGroup())
+                //     ->sortable(false)
+                //     ->searchable(false),
             ])
             ->filters([
                 //

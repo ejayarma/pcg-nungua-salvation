@@ -69,14 +69,24 @@ class GraduationMembers extends ListRecords
                     ->label('Birthday')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('is_communicant')
+                    ->label('Communicant')
+                    ->badge()
+                    ->getStateUsing(function (Member $record) {
+                        return $record->is_communicant ? 'Yes' : 'No';
+                    })->colors([
+                        'success' => fn ($state) => $state === 'Yes',
+                        'danger' => fn ($state) => $state === 'No',
+                    ]),
                 Tables\Columns\TextColumn::make('generationalGroup.name')
-                    ->label('Current Group')
+                    ->label('Gen. Group')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('rightful_generational_group')
-                    ->label('Rightful Group')
-                    ->getStateUsing(fn (Member $record): string => self::getRightfulGroup($record))
-                    ->sortable(false),
+                    ->label('Rightful Gen. Group')
+                    ->getStateUsing(fn (Member $record): string => $record->getRightfulGroup())
+                    ->sortable(false)
+                    ->searchable(false),
             ])
             ->filters([
                 //
@@ -90,32 +100,5 @@ class GraduationMembers extends ListRecords
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    protected static function getRightfulGroup(Member $member): string
-    {
-        if (! $member->date_of_birth) {
-            return 'Unknown';
-        }
-
-        $age = now()->diffInYears($member->date_of_birth, true);
-
-        if ($age < 12) {
-            return 'Children Service';
-        }
-
-        if ($age < 18) {
-            return 'JY';
-        }
-
-        if ($age < 30) {
-            return 'YPG';
-        }
-
-        if ($age < 40) {
-            return 'YAF';
-        }
-
-        return $member->gender === 'male' ? "Men's Fellowship" : "Women's Fellowship";
     }
 }
