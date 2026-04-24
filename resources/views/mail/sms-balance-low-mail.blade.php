@@ -14,7 +14,11 @@ We're writing to inform you that your SMS credit balance is below the recommende
 
 Please top up your SMS credit to avoid any service disruptions when sending message broadcasts.
 
-To add credit, please contact your SMS service provider or visit the service portal.
+To add credit, please visit the admin portal.
+
+<x-mail::button :url="route('filament.admin.resources.message-broadcasts.index')">
+Top Up
+</x-mail::button>
 
 ---
 

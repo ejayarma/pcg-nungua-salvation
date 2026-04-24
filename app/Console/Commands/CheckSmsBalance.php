@@ -35,7 +35,7 @@ class CheckSmsBalance extends Command
 
         $this->info("Current SMS balance: {$balance}");
 
-        if ($balance < $threshold) {
+        if (!($balance < $threshold)) {
             $this->warn("SMS balance ({$balance}) is below threshold ({$threshold})");
             $this->notifyAdmins($balance, $threshold);
         } else {
